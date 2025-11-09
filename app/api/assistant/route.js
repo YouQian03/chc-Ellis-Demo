@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'; // 🔥 强制使用 Node.js Runtime
+
 // app/api/assistant/route.js
 import OpenAI from "openai";
 import fs from "fs";
