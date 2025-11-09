@@ -1,5 +1,11 @@
 // app/api/assistant/route.js
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
+
+// ✅ 新增：读取架构文档
+const architecturePath = path.join(process.cwd(), "seed-files", "ellis-architecture.md");
+const architectureDoc = fs.existsSync(architecturePath) ? fs.readFileSync(architecturePath, "utf-8") : "";
 
 export async function GET() {
   return new Response(JSON.stringify({ ok: true, endpoint: "/api/assistant", method: "GET" }), {
@@ -19,11 +25,11 @@ export async function POST(req) {
   }
 
   let content = "";
-  let threadId = null; // ✅ 新增：接收前端传来的 threadId
+  let threadId = null;
   try {
     const body = await req.json();
     content = (body?.content || "").trim();
-    threadId = body?.threadId || null; // ✅ 获取 threadId
+    threadId = body?.threadId || null;
   } catch {
     return new Response(JSON.stringify({ ok: false, error: "Invalid JSON body" }), {
       status: 400, headers: { "Content-Type": "application/json" },
@@ -38,15 +44,17 @@ export async function POST(req) {
   const client = new OpenAI({ apiKey });
 
   try {
-    // ✅ 关键修改：如果没有 threadId 就创建新的，否则使用现有的
     let thread;
     if (threadId) {
-      thread = { id: threadId }; // 使用现有 thread
+      thread = { id: threadId };
     } else {
-      thread = await client.beta.threads.create(); // 只在第一次创建
+      thread = await client.beta.threads.create();
     }
 
-    await client.beta.threads.messages.create(thread.id, { role: "user", content });
+    // ✅ 新增：如果有架构文档，拼接到用户消息前
+    const finalContent = architectureDoc ? `${architectureDoc}\n\n---\n\nUser: ${content}` : content;
+
+    await client.beta.threads.messages.create(thread.id, { role: "user", content: finalContent });
 
     const run = await client.beta.threads.runs.createAndPoll(thread.id, {
       assistant_id: assistantId,
@@ -64,7 +72,6 @@ export async function POST(req) {
     const latest = msgs.data[0];
     const text = latest?.content?.[0]?.type === "text" ? latest.content[0].text.value ?? "" : "";
 
-    // ✅ 返回时包含 threadId，前端需要保存它
     return new Response(JSON.stringify({ ok: true, text, threadId: thread.id }), {
       status: 200, headers: { "Content-Type": "application/json" },
     });
