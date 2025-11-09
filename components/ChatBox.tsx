@@ -6,6 +6,7 @@ export default function ChatBox() {
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null); // ✅ 保存 threadId
 
   async function send() {
     const content = input.trim();
@@ -17,9 +18,18 @@ export default function ChatBox() {
       const r = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ 
+          content,
+          threadId // ✅ 发送现有的 threadId
+        }),
       });
       const data = await r.json();
+      
+      // ✅ 保存返回的 threadId（第一次会收到新的）
+      if (data?.threadId) {
+        setThreadId(data.threadId);
+      }
+      
       if (data?.text) {
         setMsgs((m) => [...m, { role: "assistant", text: data.text }]);
       } else {

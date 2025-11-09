@@ -1,14 +1,12 @@
 // app/api/assistant/route.js
 import OpenAI from "openai";
 
-// 仅用于手动在浏览器访问时的健康检查
 export async function GET() {
   return new Response(JSON.stringify({ ok: true, endpoint: "/api/assistant", method: "GET" }), {
     headers: { "Content-Type": "application/json" },
   });
 }
 
-// 下面是原来的 POST（保持不变）
 export async function POST(req) {
   const apiKey = process.env.OPENAI_API_KEY;
   const assistantId = process.env.ASSISTANT_ID;
@@ -21,9 +19,11 @@ export async function POST(req) {
   }
 
   let content = "";
+  let threadId = null; // ✅ 新增：接收前端传来的 threadId
   try {
     const body = await req.json();
     content = (body?.content || "").trim();
+    threadId = body?.threadId || null; // ✅ 获取 threadId
   } catch {
     return new Response(JSON.stringify({ ok: false, error: "Invalid JSON body" }), {
       status: 400, headers: { "Content-Type": "application/json" },
@@ -38,7 +38,14 @@ export async function POST(req) {
   const client = new OpenAI({ apiKey });
 
   try {
-    const thread = await client.beta.threads.create();
+    // ✅ 关键修改：如果没有 threadId 就创建新的，否则使用现有的
+    let thread;
+    if (threadId) {
+      thread = { id: threadId }; // 使用现有 thread
+    } else {
+      thread = await client.beta.threads.create(); // 只在第一次创建
+    }
+
     await client.beta.threads.messages.create(thread.id, { role: "user", content });
 
     const run = await client.beta.threads.runs.createAndPoll(thread.id, {
@@ -57,7 +64,8 @@ export async function POST(req) {
     const latest = msgs.data[0];
     const text = latest?.content?.[0]?.type === "text" ? latest.content[0].text.value ?? "" : "";
 
-    return new Response(JSON.stringify({ ok: true, text }), {
+    // ✅ 返回时包含 threadId，前端需要保存它
+    return new Response(JSON.stringify({ ok: true, text, threadId: thread.id }), {
       status: 200, headers: { "Content-Type": "application/json" },
     });
   } catch (e) {

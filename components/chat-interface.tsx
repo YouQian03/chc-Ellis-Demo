@@ -13,6 +13,7 @@ export default function ChatInterface() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(null); // ✅ 保存 threadId
 
   async function send() {
     const text = input.trim();
@@ -27,10 +28,13 @@ export default function ChatInterface() {
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: text }),
+        body: JSON.stringify({ 
+          content: text,
+          threadId // ✅ 发送现有的 threadId
+        }),
       });
 
-      const raw = await res.text(); // 先取文本避免偶发 HTML
+      const raw = await res.text();
       let data: any;
       try {
         data = JSON.parse(raw);
@@ -40,6 +44,11 @@ export default function ChatInterface() {
 
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || `HTTP ${res.status}`);
+      }
+
+      // ✅ 保存返回的 threadId
+      if (data?.threadId) {
+        setThreadId(data.threadId);
       }
 
       setMessages((m) => [...m, { role: "assistant", content: data.text || "" }]);
@@ -54,7 +63,6 @@ export default function ChatInterface() {
 
   return (
     <Card className="h-full flex flex-col">
-      {/* 消息区：自适应高度 + 主题色 */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-3">
           {messages.map((m, i) => (
@@ -77,7 +85,6 @@ export default function ChatInterface() {
         </div>
       </ScrollArea>
 
-      {/* 输入区：完全使用你 v0 的 Input / Button */}
       <div className="border-t p-3 flex items-center gap-2">
         <Input
           placeholder="输入你的课堂情境或问题…"
