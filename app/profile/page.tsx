@@ -2,11 +2,11 @@
 
 import { useSearchParams } from 'next/navigation';
 import { User, Lock, Cog, Database, Brain, Shield, FileText, LogOut, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const sp = useSearchParams();
-  const username = sp?.get('username') ?? 'alice'; // ✅ 已修复：防止 sp 为 null 报错
+  const username = sp?.get('username') ?? 'alice';
 
   const [shareData, setShareData] = useState(true);
   const [enableMemory, setEnableMemory] = useState(true);
@@ -173,6 +173,14 @@ export default function ProfilePage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>加载中...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }
 

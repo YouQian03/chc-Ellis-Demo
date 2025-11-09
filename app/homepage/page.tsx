@@ -1,12 +1,12 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { MessageSquare, Sparkles, User, Search } from 'lucide-react';
 
 type Tab = 'chat' | 'reflection' | 'profile' | 'learning';
 
-export default function HomePage() {
+function HomeContent() {
   const sp = useSearchParams();
   const router = useRouter();
 
@@ -101,3 +101,10 @@ export default function HomePage() {
   );
 }
 
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>加载中...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
+}
