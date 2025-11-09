@@ -47,22 +47,22 @@ export default function ChatBox() {
       <div style={{ padding: 16, overflow: "auto", display: "grid", gap: 10 }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display: "flex", gap: 8 }}>
-            <div style={{ fontWeight: 700 }}>{m.role === "user" ? "你" : "Ellis"}</div>
+            <div style={{ fontWeight: 700 }}>{m.role === "user" ? "you" : "Ellis"}</div>
             <div>{m.text}</div>
           </div>
         ))}
-        {loading && <div style={{ color: "#888" }}>Ellis 正在思考…</div>}
+        {loading && <div style={{ color: "#888" }}>Ellis thinking…</div>}
       </div>
       <div style={{ padding: 12, borderTop: "1px solid #eee", display: "flex", gap: 8 }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="输入你的课堂情境或问题…"
+          placeholder="Enter your classroom situation or question..."
           style={{ flex: 1, padding: 10, borderRadius: 10, border: "1px solid #ddd" }}
         />
         <button onClick={send} disabled={loading} style={{ padding: "10px 16px", borderRadius: 10 }}>
-          发送
+          Send
         </button>
       </div>
     </div>

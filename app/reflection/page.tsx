@@ -11,7 +11,7 @@ export default function ReflectionPage() {
 
   return (
     <main style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0 }}>Reflection</h1>
+      <h1 style={{ fontSize: 32, fontWeight: 900, margin: 0 }}>Reflection</h1>
       <p style={{ color: "#666", marginTop: 6 }}>
         Review your conversation history and track your professional development
       </p>

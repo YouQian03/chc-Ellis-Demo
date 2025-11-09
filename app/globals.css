@@ -87,3 +87,12 @@
     @apply bg-white text-foreground;
   }
 }
+/* —— Unified page title (class-based) —— */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 4px 0 16px;
+}
+

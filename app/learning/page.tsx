@@ -112,7 +112,7 @@ export default function LearningPage() {
 
   return (
     <main style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 40, lineHeight: 1.1, fontWeight: 900, margin: 0 }}>
+      <h1 style={{ fontSize: 32, fontWeight: 900, margin: 0 }}>
         Learning Resources
       </h1>
       <p style={{ color: '#6b7280', marginTop: 8, maxWidth: 860 }}>

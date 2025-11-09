@@ -75,11 +75,11 @@ export default function ChatInterface() {
               </div>
             </div>
           ))}
-          {loading && <div className="text-muted-foreground text-sm">Ellis 正在思考…</div>}
+          {loading && <div className="text-muted-foreground text-sm">Ellis thinking</div>}
           {error && <div className="text-destructive text-sm">错误：{error}</div>}
           {messages.length === 0 && !loading && (
             <div className="text-muted-foreground text-sm">
-              试试输入：<code>一个学生上课总是摇头晃脑，我提醒也不改，怎么办？</code>
+              <p>Try typing: “One of my students keeps shaking his head during class, and reminders don’t help. What should I do?”</p>
             </div>
           )}
         </div>
@@ -87,13 +87,13 @@ export default function ChatInterface() {
 
       <div className="border-t p-3 flex items-center gap-2">
         <Input
-          placeholder="输入你的课堂情境或问题…"
+          placeholder="Enter your classroom situation or question..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
         />
         <Button onClick={send} disabled={loading}>
-          发送
+          Send
         </Button>
       </div>
     </Card>
