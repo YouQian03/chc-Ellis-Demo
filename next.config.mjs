@@ -8,4 +8,7 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default {
+  // 不要配置 output:'export'
+}
+
