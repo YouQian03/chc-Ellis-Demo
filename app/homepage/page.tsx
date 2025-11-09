@@ -1,21 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import { MessageSquare, Sparkles, User, Search } from 'lucide-react';
 
 type Tab = 'chat' | 'reflection' | 'profile' | 'learning';
 
 export default function HomePage() {
-  const [current, setCurrent] = useState<Tab>('chat');
+  const sp = useSearchParams();
+  const router = useRouter();
 
-  const Btn = (
-    tab: Tab,
-    label: string,
-    Icon: React.ComponentType<{ size?: number }>
-  ) => (
+  const tab = (sp?.get('tab') as Tab) || 'chat';
+  const username = sp?.get('username') || 'alice';
+
+  function go(next: Tab) {
+    const q = new URLSearchParams(sp?.toString() || '');
+    q.set('tab', next);
+    q.set('username', username);
+    router.push(`/homepage?${q.toString()}`);
+  }
+
+  const Iframe = useMemo(() => {
+    let src = '/chat';
+    if (tab === 'profile') src = `/profile?username=${encodeURIComponent(username)}`;
+    if (tab === 'reflection') src = '/reflection';
+    if (tab === 'learning') src = '/learning';
+    return (
+      <iframe
+        key={src}
+        src={src}
+        title={`Ellis-${tab}`}
+        style={{ width: '100%', height: '100%', border: 'none' }}
+      />
+    );
+  }, [tab, username]);
+
+  const Btn = (t: Tab, label: string, Icon: React.ComponentType<{ size?: number }>) => (
     <button
-      key={tab}
-      onClick={() => setCurrent(tab)}
+      onClick={() => go(t)}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -24,8 +46,8 @@ export default function HomePage() {
         textAlign: 'left',
         padding: '12px 16px',
         borderRadius: 12,
-        background: current === tab ? '#000' : 'transparent',
-        color: current === tab ? '#fff' : '#000',
+        background: tab === t ? '#000' : 'transparent',
+        color: tab === t ? '#fff' : '#000',
         fontWeight: 500,
         border: 'none',
         cursor: 'pointer',
@@ -37,44 +59,8 @@ export default function HomePage() {
     </button>
   );
 
-  const Content = () => {
-    if (current === 'chat') {
-      // 保持你原来的 Chat UI：直接嵌入现有 /chat 页面
-      return (
-        <iframe
-          src="/chat"
-          title="Ellis Chat"
-          style={{ width: '100%', height: '100%', border: 'none' }}
-        />
-      );
-    }
-    if (current === 'reflection') {
-      return (
-        <Placeholder
-          title="Reflection"
-          desc="这里放你的 Reflection 模块（先占位）。后续可替换为你自己的组件，或改成 <iframe src='/reflection'/>。"
-        />
-      );
-    }
-    if (current === 'profile') {
-      return (
-        <Placeholder
-          title="Profile"
-          desc="这里放用户信息/设置（先占位）。后续可替换为你自己的组件，或改成 <iframe src='/profile'/>。"
-        />
-      );
-    }
-    // learning
-    return (
-      <Placeholder
-        title="Learning"
-        desc="这里放学习资源（先占位）。后续可替换为你自己的组件，或改成 <iframe src='/learning'/>。"
-      />
-    );
-  };
-
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100%', fontFamily: 'Inter, sans-serif', background: '#f6f7f9' }}>
       {/* 左侧导航 */}
       <aside
         style={{
@@ -84,11 +70,11 @@ export default function HomePage() {
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
+          background: '#fff',
         }}
       >
         <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Ellis</h2>
-        <p style={{ fontSize: 14, color: '#666', marginTop: 0 }}>Hi, alice</p>
-
+        <p style={{ fontSize: 14, color: '#666', marginTop: 0 }}>Hi, {username}</p>
         <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
           {Btn('chat', 'Chat', MessageSquare)}
           {Btn('reflection', 'Reflection', Sparkles)}
@@ -97,8 +83,8 @@ export default function HomePage() {
         </div>
       </aside>
 
-      {/* 右侧内容区 */}
-      <main style={{ flex: 1, background: '#fafafa', padding: 20 }}>
+      {/* 右侧内容区域 */}
+      <main style={{ flex: 1, padding: 20 }}>
         <div
           style={{
             height: '100%',
@@ -108,26 +94,10 @@ export default function HomePage() {
             overflow: 'hidden',
           }}
         >
-          <Content />
+          {Iframe}
         </div>
       </main>
     </div>
   );
 }
-
-function Placeholder({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div style={{ padding: 24 }}>
-      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{title}</div>
-      <div style={{ color: '#666' }}>{desc}</div>
-    </div>
-  );
-}
-
-
-
-
-
-
-
 
