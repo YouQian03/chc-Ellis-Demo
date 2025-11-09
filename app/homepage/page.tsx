@@ -1,12 +1,12 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useMemo, Suspense } from 'react';
-import { MessageSquare, Sparkles, User, Search } from 'lucide-react';
+import { useMemo } from 'react';
+import { MessageSquare, Sparkles, User, Search, ClipboardList, Users } from 'lucide-react';
 
-type Tab = 'chat' | 'reflection' | 'profile' | 'learning';
+type Tab = 'chat' | 'reflection' | 'profile' | 'learning' | 'actions' | 'community';
 
-function HomeContent() {
+export default function HomePage() {
   const sp = useSearchParams();
   const router = useRouter();
 
@@ -25,6 +25,8 @@ function HomeContent() {
     if (tab === 'profile') src = `/profile?username=${encodeURIComponent(username)}`;
     if (tab === 'reflection') src = '/reflection';
     if (tab === 'learning') src = '/learning';
+    if (tab === 'actions') src = '/actions';
+    if (tab === 'community') src = '/community';
     return (
       <iframe
         key={src}
@@ -78,8 +80,10 @@ function HomeContent() {
         <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
           {Btn('chat', 'Chat', MessageSquare)}
           {Btn('reflection', 'Reflection', Sparkles)}
-          {Btn('profile', 'Profile', User)}
+          {Btn('actions', 'Actions', ClipboardList)}
+          {Btn('community', 'Community', Users)}
           {Btn('learning', 'Learning', Search)}
+          {Btn('profile', 'Profile', User)}
         </div>
       </aside>
 
@@ -98,13 +102,5 @@ function HomeContent() {
         </div>
       </main>
     </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <Suspense fallback={<div style={{ padding: 24 }}>加载中...</div>}>
-      <HomeContent />
-    </Suspense>
   );
 }
